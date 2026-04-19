@@ -310,6 +310,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
   transition:background .2s;
 }
 .reset-btn:hover{background:rgba(155,143,92,.2)}
+.toggle-btn{
+  width:100%;height:32px;background:rgba(90,155,165,.08);border:1px solid rgba(90,155,165,.3);
+  border-radius:8px;color:var(--teal);font-size:11px;font-weight:700;cursor:pointer;
+  margin-top:8px;text-transform:uppercase;letter-spacing:.06em;font-family:var(--sans);
+  transition:all .3s;
+}
+.toggle-btn:hover{background:rgba(90,155,165,.15);border-color:var(--teal)}
+.toggle-btn.active{background:rgba(90,155,165,.3);border-color:var(--teal-light);box-shadow:0 0 12px rgba(90,155,165,.25)}
 .sim-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
 @media(max-width:600px){.sim-info-grid{grid-template-columns:1fr}}
 .sim-info-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px}
@@ -815,9 +823,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
             <input type="range" id="spSlider" min="10" max="100" value="60" step="1">
           </div>
           <div class="sldr-wrap">
-            <label>حساسية التوقف <span id="sensLbl">30 سم</span></label>
-            <input type="range" id="sensSlider" min="15" max="80" value="30" step="1">
+            <label>حساسية التوقف <span id="sensLbl">20 سم</span></label>
+            <input type="range" id="sensSlider" min="15" max="80" value="20" step="1">
           </div>
+          <button class="toggle-btn" id="sAutoBtn">📡 أوتو مسح (OFF)</button>
         </div>
         <div class="ctrl-card">
           <h4>عوائق</h4>
@@ -859,7 +868,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 <!-- FOOTER -->
 <footer class="footer reveal">
   <p>🎓 تحت إشراف: <span class="t">د. محمد صلاح فؤاد</span></p>
-  <p>✨ Smart Car Project · Arduino Uno · <span class="t">2024/2025</span></p>
+  <p>✨ Smart Car Project · Arduino Uno · <span class="t">2025/2026</span></p>
 </footer>
 
 </div><!-- /wrap -->
@@ -889,20 +898,41 @@ const S = {
   angle: -Math.PI/2,
   speed: 0,
   targetSpeed: 0,
-  maxSpeed: 3.5,
+  maxSpeed: 1.8,  // Internal simulation speed
   fwd: 0,
   turn: 0,
   sAngle: 0,    // sensor sweep angle relative to car
   sDir: 1,
   sDist: Infinity,
-  stopDist: 30,
+  stopDist: 20,
   warnDist: 65,
+  sAutoMode: false,  // sensor auto sweep mode
+  sScanReadings: [],  // multi-angle sensor readings
+  sMinDist: Infinity, // minimum detected distance
   obstacles: [],
   trail: [],
   wheelRot: 0,
   keys: new Set(),
   lastTime: 0
 };
+
+// ── Professional Multi-Angle Sensor System ──
+function updateSensorReadings() {
+  S.sScanReadings = [];
+  S.sMinDist = Infinity;
+
+  // Scan in multiple angles for professional detection
+  const scanAngles = [-20, -10, 0, 10, 20]; // degrees relative to main sensor
+  for (const angleOffset of scanAngles) {
+    const angle = S.angle + (S.sAngle + angleOffset) * Math.PI/180;
+    const dist = raycast(S.x, S.y, angle);
+    S.sScanReadings.push({angle, dist, offset: angleOffset});
+    if (dist < S.sMinDist) S.sMinDist = dist;
+  }
+
+  // Use minimum distance as primary detection
+  S.sDist = S.sMinDist;
+}
 
 // ── Raycast ──
 function raycast(ox, oy, angle) {
@@ -943,10 +973,15 @@ function randObs() {
 function update(dt) {
   const dtS = Math.min(dt/1000, 0.05);
 
-  // Sensor sweep
-  S.sAngle += S.sDir * 75 * dtS;
-  if (S.sAngle > 75) S.sDir = -1;
-  if (S.sAngle < -75) S.sDir = 1;
+  // Sensor sweep (auto mode)
+  if (S.sAutoMode) {
+    S.sAngle += S.sDir * 90 * dtS;  // 90 degrees per second
+    if (S.sAngle > 75) S.sDir = -1;
+    if (S.sAngle < -75) S.sDir = 1;
+  }
+
+  // Multi-angle sensor scanning for professional detection
+  updateSensorReadings();
 
   // Measure distance from nose
   const noseX = S.x + Math.cos(S.angle) * 20;
@@ -965,8 +1000,8 @@ function update(dt) {
     targetSpd = S.fwd * S.maxSpeed * Math.max(0.1, factor);
   }
 
-  // Smooth speed
-  const accel = 9, brake = 14;
+  // Smooth speed - Fast acceleration for DC TT motor (realistic)
+  const accel = 18, brake = 16;
   if (targetSpd > S.speed) S.speed = Math.min(S.speed + accel*dtS, targetSpd);
   else if (targetSpd < S.speed) S.speed = Math.max(S.speed - brake*dtS, targetSpd);
   if (Math.abs(S.speed) < 0.02 && targetSpd === 0) S.speed = 0;
@@ -993,6 +1028,95 @@ function update(dt) {
     S.trail.push({ x: S.x, y: S.y });
     if (S.trail.length > 80) S.trail.shift();
   }
+}
+
+// ── Professional Side Speedometer ──
+function drawSpeedometer() {
+  const spdPct = Math.abs(S.speed) / S.maxSpeed;
+  // Real speed: max 2.5 km/h regardless of internal maxSpeed value
+  const speedKMH = Math.round((Math.abs(S.speed) / S.maxSpeed) * 2.5 * 10);
+
+  // Speedometer position (right side)
+  const spX = CW - 80;
+  const spY = 50;
+  const radius = 35;
+
+  // Background circle
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(spX, spY, radius + 8, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(18, 26, 36, 0.95)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(90, 155, 165, 0.5)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Gauge background
+  ctx.beginPath();
+  ctx.arc(spX, spY, radius, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(12, 20, 28, 0.8)';
+  ctx.fill();
+
+  // Speed scale (0 to max)
+  ctx.strokeStyle = 'rgba(90, 155, 165, 0.3)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 10; i++) {
+    const angle = (Math.PI * 0.7) + (i / 10) * (Math.PI * 1.6);
+    const x1 = spX + Math.cos(angle) * (radius - 5);
+    const y1 = spY + Math.sin(angle) * (radius - 5);
+    const x2 = spX + Math.cos(angle) * (radius - 12);
+    const y2 = spY + Math.sin(angle) * (radius - 12);
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
+
+  // Speed value color - Adjusted for DC TT motor (max 2.5 km/h)
+  let needleColor = '#5A9BA5';
+  let textColor = '#5A9BA5';
+  if (speedKMH > 2.0) {
+    needleColor = '#d85a30';
+    textColor = '#d85a30';
+  } else if (speedKMH > 1.5) {
+    needleColor = '#c9924f';
+    textColor = '#c9924f';
+  } else if (speedKMH > 0.8) {
+    needleColor = '#5dcaa5';
+    textColor = '#5dcaa5';
+  }
+
+  // Needle (indicator)
+  const needleAngle = (Math.PI * 0.7) + spdPct * (Math.PI * 1.6);
+  ctx.strokeStyle = needleColor;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(spX, spY);
+  ctx.lineTo(
+    spX + Math.cos(needleAngle) * (radius - 8),
+    spY + Math.sin(needleAngle) * (radius - 8)
+  );
+  ctx.stroke();
+
+  // Center dot
+  ctx.beginPath();
+  ctx.arc(spX, spY, 3, 0, Math.PI*2);
+  ctx.fillStyle = needleColor;
+  ctx.fill();
+
+  // Speed text
+  ctx.fillStyle = textColor;
+  ctx.font = 'bold 16px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(speedKMH, spX, spY + 12);
+
+  // KMH label
+  ctx.fillStyle = 'rgba(90, 155, 165, 0.6)';
+  ctx.font = '10px Arial';
+  ctx.fillText('KM/H', spX, spY + 24);
+
+  ctx.restore();
 }
 
 // ── Draw ──
@@ -1024,83 +1148,129 @@ function draw() {
     ctx.fillText('✕', o.x, o.y);
   }
 
-  // Sensor ray
+  // Sensor rays (professional multi-angle visualization)
   const noseX = S.x + Math.cos(S.angle) * 20;
   const noseY = S.y + Math.sin(S.angle) * 20;
-  const worldAngle = S.angle + S.sAngle * Math.PI/180;
-  const rayLen = Math.min(S.sDist, 300);
-  const ex = noseX + Math.cos(worldAngle) * rayLen;
-  const ey = noseY + Math.sin(worldAngle) * rayLen;
 
+  // Draw all scan rays
+  if (S.sScanReadings.length > 0) {
+    for (const scan of S.sScanReadings) {
+      const rayLen = Math.min(scan.dist, 300);
+      const ex = noseX + Math.cos(scan.angle) * rayLen;
+      const ey = noseY + Math.sin(scan.angle) * rayLen;
+
+      // Ray color based on distance
+      let rayColor = S.sDist < S.stopDist ? '#d87575' : S.sDist < S.warnDist ? '#c9924f' : '#5A9BA5';
+
+      // Thinner for side rays
+      const isCenterRay = scan.offset === 0;
+      const opacity = isCenterRay ? 'bb' : '77';
+
+      ctx.beginPath();
+      ctx.moveTo(noseX, noseY);
+      ctx.lineTo(ex, ey);
+      ctx.strokeStyle = rayColor + opacity;
+      ctx.lineWidth = isCenterRay ? 2.5 : 1.5;
+      ctx.stroke();
+
+      // Ray endpoint for all rays
+      if (scan.dist < 300) {
+        ctx.beginPath();
+        ctx.arc(ex, ey, isCenterRay ? 4 : 2, 0, Math.PI*2);
+        ctx.fillStyle = rayColor;
+        ctx.fill();
+      }
+    }
+  }
+
+  // Original single ray visualization is replaced by multi-angle above
+
+  // Sensor FOV cone (from center angle)
+  const worldAngle = S.angle + S.sAngle * Math.PI/180;
+  const fov = 22 * Math.PI/180;
   let rayColor = S.sDist < S.stopDist ? '#d87575' : S.sDist < S.warnDist ? '#c9924f' : '#5A9BA5';
 
-  // FOV cone
-  const fov = 22 * Math.PI/180;
   ctx.beginPath();
   ctx.moveTo(noseX, noseY);
-  ctx.arc(noseX, noseY, 36, worldAngle-fov, worldAngle+fov);
+  ctx.arc(noseX, noseY, 50, worldAngle-fov, worldAngle+fov);
   ctx.closePath();
-  ctx.fillStyle = rayColor + '18'; ctx.fill();
-
-  // Ray line
-  ctx.beginPath(); ctx.moveTo(noseX, noseY); ctx.lineTo(ex, ey);
-  ctx.strokeStyle = rayColor + 'bb'; ctx.lineWidth = 2;
-  ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
-
-  // Ray endpoint
-  ctx.beginPath(); ctx.arc(ex, ey, S.sDist < 300 ? 5 : 2.5, 0, Math.PI*2);
-  ctx.fillStyle = rayColor; ctx.fill();
+  ctx.fillStyle = rayColor + '08';
+  ctx.fill();
 
   // Sensor dot on nose
   ctx.beginPath(); ctx.arc(noseX, noseY, 3, 0, Math.PI*2);
   ctx.fillStyle = '#5dcaa5'; ctx.fill();
 
-  // Car body
+  // Car body - More realistic DC TT motor robot design
   const danger = S.sDist < S.stopDist && S.fwd > 0;
   ctx.save();
   ctx.translate(S.x, S.y);
   ctx.rotate(S.angle);
 
-  // Body
-  ctx.fillStyle = danger ? '#3d1508' : '#0c3560';
-  ctx.beginPath(); ctx.roundRect(-14, -10, 28, 20, 4); ctx.fill();
-  ctx.strokeStyle = danger ? '#d85a30' : '#378add'; ctx.lineWidth = 1.5; ctx.stroke();
+  // Main chassis (more compact for small robot)
+  ctx.fillStyle = danger ? '#2d0f05' : '#082a4a';
+  ctx.beginPath(); ctx.roundRect(-12, -9, 24, 18, 3); ctx.fill();
+  ctx.strokeStyle = danger ? '#d85a30' : '#378add'; ctx.lineWidth = 1.2; ctx.stroke();
 
-  // Windshield
-  ctx.fillStyle = danger ? '#662010' : '#1a5c9e';
-  ctx.beginPath(); ctx.roundRect(-11, -10, 22, 10, 3); ctx.fill();
+  // Front sensor mounting bracket
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath(); ctx.roundRect(8, -5, 5, 10, 1); ctx.fill();
+  ctx.strokeStyle = '#444'; ctx.lineWidth = 0.5; ctx.stroke();
 
-  // Headlights
-  ctx.fillStyle = danger ? '#ef9f27' : '#b5d4f4';
-  ctx.fillRect(10, -8, 4, 4);
-  ctx.fillRect(10, 4, 4, 4);
+  // Sensor lens
+  ctx.fillStyle = '#5dcaa5';
+  ctx.beginPath(); ctx.arc(10.5, 0, 2, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#3a9e85'; ctx.lineWidth = 0.5; ctx.stroke();
 
-  // Taillights
-  ctx.fillStyle = '#d87575';
-  ctx.fillRect(-14, -7, 3, 3);
-  ctx.fillRect(-14, 4, 3, 3);
+  // Main PCB (circuit board)
+  ctx.fillStyle = danger ? '#1a0a05' : '#0a1a2a';
+  ctx.beginPath(); ctx.roundRect(-10, -7, 20, 14, 2); ctx.fill();
 
-  // Wheels
-  const wPositions = [[-12,-12],[6,-12],[-12,8],[6,8]];
+  // Circuit details (resistors/capacitors)
+  ctx.fillStyle = '#666';
+  ctx.fillRect(-7, -5, 2, 2);
+  ctx.fillRect(5, -5, 2, 2);
+  ctx.fillRect(-7, 3, 2, 2);
+  ctx.fillRect(5, 3, 2, 2);
+
+  // Motor mounts (DCT TT motor styled)
+  ctx.fillStyle = '#1a2430';
+  ctx.fillRect(-11, -4, 3, 8);
+  ctx.fillRect(8, -4, 3, 8);
+
+  // Power LED indicator
+  if (S.fwd !== 0) {
+    ctx.fillStyle = danger ? '#ef5a3a' : '#4ae54a';
+    ctx.beginPath(); ctx.arc(-8, -6, 1.5, 0, Math.PI*2); ctx.fill();
+    // LED glow
+    ctx.fillStyle = (danger ? '#ef5a3a' : '#4ae54a') + '44';
+    ctx.beginPath(); ctx.arc(-8, -6, 3, 0, Math.PI*2); ctx.fill();
+  }
+
+  // Wheels (smaller, more realistic)
+  const wPositions = [[-10,-11],[7,-11],[-10,11],[7,11]];
   for (const [wx,wy] of wPositions) {
-    ctx.save(); ctx.translate(wx+3, wy+3); ctx.rotate(S.wheelRot);
-    ctx.fillStyle = '#1a2430';
-    ctx.beginPath(); ctx.roundRect(-3,-4,6,8,1); ctx.fill();
-    ctx.strokeStyle = '#444'; ctx.lineWidth = 0.5; ctx.stroke();
-    ctx.strokeStyle = '#888780'; ctx.lineWidth = 0.5;
-    ctx.beginPath(); ctx.moveTo(0,-3); ctx.lineTo(0,3); ctx.stroke();
+    ctx.save(); ctx.translate(wx, wy); ctx.rotate(S.wheelRot);
+    // Wheel rim
+    ctx.fillStyle = '#2a2a2a';
+    ctx.beginPath(); ctx.arc(0, 0, 3, 0, Math.PI*2); ctx.fill();
+    // Wheel tread
+    ctx.strokeStyle = '#555'; ctx.lineWidth = 0.8;
+    for (let i = 0; i < 8; i++) {
+      const a = (i/8) * Math.PI*2;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a)*1.5, Math.sin(a)*1.5);
+      ctx.lineTo(Math.cos(a)*2.5, Math.sin(a)*2.5);
+      ctx.stroke();
+    }
+    // Center axle
+    ctx.fillStyle = '#666';
+    ctx.beginPath(); ctx.arc(0, 0, 0.8, 0, Math.PI*2); ctx.fill();
     ctx.restore();
   }
 
-  // Speed arc indicator
-  const spdPct = Math.abs(S.speed) / S.maxSpeed;
-  if (spdPct > 0.05) {
-    ctx.strokeStyle = danger ? '#d85a30' : '#5A9BA5';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.arc(0, 0, 17, -Math.PI/2, -Math.PI/2 + spdPct * Math.PI*2);
-    ctx.stroke();
-  }
+  // Speed arc indicator - REMOVED (moved to side panel)
+  // Indicator now shows on the side of the screen
 
   // Emergency LED
   if (danger) {
@@ -1109,6 +1279,9 @@ function draw() {
   }
 
   ctx.restore();
+
+  // Draw professional side speedometer
+  drawSpeedometer();
 
   // UI update
   const distEl = document.getElementById('distVal');
@@ -1185,7 +1358,7 @@ Object.entries(btnMap).forEach(([id,[fwd,turn]]) => {
 document.getElementById('bStop').addEventListener('click', () => { S.fwd=0; S.turn=0; S.speed=0; S.targetSpeed=0; updateBtns(); });
 
 document.getElementById('spSlider').addEventListener('input', function() {
-  S.maxSpeed = this.value/100*5;
+  S.maxSpeed = this.value/100*1.8;  // Internal speed (display shows real 0-2.5 km/h)
   document.getElementById('spLbl').textContent = this.value + '%';
 });
 document.getElementById('sensSlider').addEventListener('input', function() {
@@ -1199,6 +1372,13 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   S.x=CW/2; S.y=CH/2; S.angle=-Math.PI/2;
   S.speed=0; S.fwd=0; S.turn=0;
   S.obstacles=[]; S.trail=[]; S.keys.clear(); updateBtns();
+});
+
+// Auto sensor mode toggle
+document.getElementById('sAutoBtn').addEventListener('click', function() {
+  S.sAutoMode = !S.sAutoMode;
+  this.textContent = '📡 أوتو مسح (' + (S.sAutoMode ? 'ON' : 'OFF') + ')';
+  this.classList.toggle('active', S.sAutoMode);
 });
 </script>
 </body>
