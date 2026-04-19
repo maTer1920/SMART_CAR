@@ -24,11 +24,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:
 body::before{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
-    radial-gradient(circle at 15% 40%,rgba(90,155,165,.05) 0%,transparent 50%),
-    radial-gradient(circle at 85% 70%,rgba(155,143,92,.03) 0%,transparent 50%),
-    linear-gradient(rgba(90,155,165,.012) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(90,155,165,.012) 1px,transparent 1px);
-  background-size:100% 100%,100% 100%,50px 50px,50px 50px;
+    radial-gradient(circle at 15% 40%,rgba(90,155,165,.08) 0%,transparent 50%),
+    radial-gradient(circle at 85% 70%,rgba(155,143,92,.05) 0%,transparent 50%),
+    linear-gradient(rgba(90,155,165,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(90,155,165,.04) 1px,transparent 1px),
+    linear-gradient(rgba(90,155,165,.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(90,155,165,.02) 1px,transparent 1px);
+  background-size:100% 100%,100% 100%,40px 40px,40px 40px,10px 10px,10px 10px;
 }
 
 /* ── Nav ── */
@@ -1121,13 +1123,40 @@ function drawSpeedometer() {
 
 // ── Draw ──
 function draw() {
-  ctx.clearRect(0, 0, CW, CH);
+  // Background gradient
+  const bgGrad = ctx.createLinearGradient(0, 0, CW, CH);
+  bgGrad.addColorStop(0, '#0a1419');
+  bgGrad.addColorStop(1, '#0d1620');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, CW, CH);
 
-  // Grid
-  ctx.strokeStyle = 'rgba(90,155,165,0.07)';
+  // Grid - Large cells (40px)
+  ctx.strokeStyle = 'rgba(90,155,165,0.15)';
+  ctx.lineWidth = 1.2;
+  for (let i = 0; i < CW; i+=40) { 
+    ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,CH); ctx.stroke(); 
+  }
+  for (let i = 0; i < CH; i+=40) { 
+    ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(CW,i); ctx.stroke(); 
+  }
+
+  // Grid - Small cells (10px) for detail
+  ctx.strokeStyle = 'rgba(90,155,165,0.05)';
   ctx.lineWidth = 0.5;
-  for (let i = 0; i < CW; i+=40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,CH); ctx.stroke(); }
-  for (let i = 0; i < CH; i+=40) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(CW,i); ctx.stroke(); }
+  for (let i = 0; i < CW; i+=10) { 
+    ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,CH); ctx.stroke(); 
+  }
+  for (let i = 0; i < CH; i+=10) { 
+    ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(CW,i); ctx.stroke(); 
+  }
+
+  // Grid intersection dots (every 40px)
+  ctx.fillStyle = 'rgba(90,155,165,0.1)';
+  for (let i = 0; i < CW; i+=40) {
+    for (let j = 0; j < CH; j+=40) {
+      ctx.beginPath(); ctx.arc(i, j, 1, 0, Math.PI*2); ctx.fill();
+    }
+  }
 
   // Trail
   for (let i = 0; i < S.trail.length; i++) {
@@ -1201,81 +1230,139 @@ function draw() {
   ctx.beginPath(); ctx.arc(noseX, noseY, 3, 0, Math.PI*2);
   ctx.fillStyle = '#5dcaa5'; ctx.fill();
 
-  // Car body - More realistic DC TT motor robot design
+  // Car body - Enhanced DC TT motor robot design
   const danger = S.sDist < S.stopDist && S.fwd > 0;
   ctx.save();
   ctx.translate(S.x, S.y);
   ctx.rotate(S.angle);
 
-  // Main chassis (more compact for small robot)
-  ctx.fillStyle = danger ? '#2d0f05' : '#082a4a';
+  // Shadow effect
+  ctx.fillStyle = 'rgba(0,0,0,0.2)';
+  ctx.beginPath(); ctx.roundRect(-12.5, -9.5, 25, 19, 3); ctx.fill();
+
+  // Main chassis with gradient
+  const chassisGrad = ctx.createLinearGradient(-12, -9, -12, 9);
+  chassisGrad.addColorStop(0, danger ? '#3d1f15' : '#1a3a5a');
+  chassisGrad.addColorStop(1, danger ? '#2d0f05' : '#082a4a');
+  ctx.fillStyle = chassisGrad;
   ctx.beginPath(); ctx.roundRect(-12, -9, 24, 18, 3); ctx.fill();
-  ctx.strokeStyle = danger ? '#d85a30' : '#378add'; ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.strokeStyle = danger ? '#ff6b5b' : '#5ab0dd'; ctx.lineWidth = 1.5; ctx.stroke();
 
-  // Front sensor mounting bracket
+  // Chassis panel line (3D effect)
+  ctx.strokeStyle = danger ? 'rgba(255,107,91,0.3)' : 'rgba(90,176,221,0.3)'; 
+  ctx.lineWidth = 0.5;
+  ctx.beginPath(); ctx.moveTo(-12, 0); ctx.lineTo(12, 0); ctx.stroke();
+
+  // Front bumper
+  ctx.fillStyle = danger ? '#8B4513' : '#1a1a1a';
+  ctx.fillRect(12, -6, 2, 12);
+  ctx.strokeStyle = danger ? '#c9924f' : '#444'; ctx.lineWidth = 0.5; ctx.stroke();
+
+  // Front sensor mounting bracket (improved)
   ctx.fillStyle = '#1a1a1a';
-  ctx.beginPath(); ctx.roundRect(8, -5, 5, 10, 1); ctx.fill();
-  ctx.strokeStyle = '#444'; ctx.lineWidth = 0.5; ctx.stroke();
+  ctx.beginPath(); ctx.roundRect(14, -6, 4, 12, 1); ctx.fill();
+  ctx.strokeStyle = '#555'; ctx.lineWidth = 0.6; ctx.stroke();
 
-  // Sensor lens
+  // Sensor lens (enhanced)
   ctx.fillStyle = '#5dcaa5';
-  ctx.beginPath(); ctx.arc(10.5, 0, 2, 0, Math.PI*2); ctx.fill();
-  ctx.strokeStyle = '#3a9e85'; ctx.lineWidth = 0.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(18, 0, 2.2, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#3a9e85'; ctx.lineWidth = 0.6; ctx.stroke();
+  // Lens shine
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.beginPath(); ctx.arc(17.5, -0.8, 0.8, 0, Math.PI*2); ctx.fill();
 
   // Main PCB (circuit board)
-  ctx.fillStyle = danger ? '#1a0a05' : '#0a1a2a';
+  const pcbGrad = ctx.createLinearGradient(0, -7, 0, 7);
+  pcbGrad.addColorStop(0, danger ? '#2a1510' : '#1a2a3a');
+  pcbGrad.addColorStop(1, danger ? '#0a0500' : '#0a1a2a');
+  ctx.fillStyle = pcbGrad;
   ctx.beginPath(); ctx.roundRect(-10, -7, 20, 14, 2); ctx.fill();
+  ctx.strokeStyle = danger ? '#885533' : '#5a7a9a'; ctx.lineWidth = 0.5; ctx.stroke();
 
-  // Circuit details (resistors/capacitors)
-  ctx.fillStyle = '#666';
-  ctx.fillRect(-7, -5, 2, 2);
-  ctx.fillRect(5, -5, 2, 2);
-  ctx.fillRect(-7, 3, 2, 2);
-  ctx.fillRect(5, 3, 2, 2);
+  // PCB trace details
+  ctx.strokeStyle = 'rgba(100,200,150,0.4)'; ctx.lineWidth = 0.3;
+  ctx.beginPath(); ctx.moveTo(-8, -5); ctx.lineTo(0, -3); ctx.lineTo(8, -5); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-8, 5); ctx.lineTo(0, 3); ctx.lineTo(8, 5); ctx.stroke();
 
-  // Motor mounts (DCT TT motor styled)
-  ctx.fillStyle = '#1a2430';
+  // Circuit components (better styling)
+  const compColors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3'];
+  const compPos = [[-7,-5],[-2,-5],[4,-5],[8,-5],[-7,3],[-2,3],[4,3],[8,3]];
+  compPos.forEach((pos, idx) => {
+    ctx.fillStyle = compColors[idx % compColors.length];
+    ctx.fillRect(pos[0], pos[1], 1.5, 1.5);
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 0.3; ctx.strokeRect(pos[0], pos[1], 1.5, 1.5);
+  });
+
+  // Motor mounts (improved DC TT motor styling)
+  const motorColor = ctx.createLinearGradient(-11, -4, -11, 4);
+  motorColor.addColorStop(0, '#2a3a45');
+  motorColor.addColorStop(1, '#1a2a35');
+  ctx.fillStyle = motorColor;
   ctx.fillRect(-11, -4, 3, 8);
   ctx.fillRect(8, -4, 3, 8);
+  ctx.strokeStyle = '#444'; ctx.lineWidth = 0.5;
+  ctx.strokeRect(-11, -4, 3, 8);
+  ctx.strokeRect(8, -4, 3, 8);
 
-  // Power LED indicator
+  // Power LED indicator (enhanced)
   if (S.fwd !== 0) {
-    ctx.fillStyle = danger ? '#ef5a3a' : '#4ae54a';
+    ctx.fillStyle = danger ? '#FF6B5B' : '#4AE54A';
     ctx.beginPath(); ctx.arc(-8, -6, 1.5, 0, Math.PI*2); ctx.fill();
-    // LED glow
-    ctx.fillStyle = (danger ? '#ef5a3a' : '#4ae54a') + '44';
-    ctx.beginPath(); ctx.arc(-8, -6, 3, 0, Math.PI*2); ctx.fill();
+    // LED glow effect
+    ctx.fillStyle = (danger ? 'rgba(255,107,91,0.5)' : 'rgba(74,229,74,0.5)');
+    ctx.beginPath(); ctx.arc(-8, -6, 4, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = (danger ? 'rgba(255,107,91,0.2)' : 'rgba(74,229,74,0.2)');
+    ctx.beginPath(); ctx.arc(-8, -6, 5.5, 0, Math.PI*2); ctx.fill();
   }
 
-  // Wheels (smaller, more realistic)
+  // Wheels (enhanced with better styling)
   const wPositions = [[-10,-11],[7,-11],[-10,11],[7,11]];
   for (const [wx,wy] of wPositions) {
     ctx.save(); ctx.translate(wx, wy); ctx.rotate(S.wheelRot);
+    
+    // Wheel shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.beginPath(); ctx.arc(0, 0, 3.3, 0, Math.PI*2); ctx.fill();
+    
     // Wheel rim
-    ctx.fillStyle = '#2a2a2a';
+    const wheelGrad = ctx.createRadialGradient(0, 0, 1, 0, 0, 3);
+    wheelGrad.addColorStop(0, '#3a3a3a');
+    wheelGrad.addColorStop(1, '#1a1a1a');
+    ctx.fillStyle = wheelGrad;
     ctx.beginPath(); ctx.arc(0, 0, 3, 0, Math.PI*2); ctx.fill();
-    // Wheel tread
-    ctx.strokeStyle = '#555'; ctx.lineWidth = 0.8;
-    for (let i = 0; i < 8; i++) {
-      const a = (i/8) * Math.PI*2;
+    
+    // Wheel tread (enhanced)
+    ctx.strokeStyle = '#555'; ctx.lineWidth = 1;
+    for (let i = 0; i < 12; i++) {
+      const a = (i/12) * Math.PI*2;
       ctx.beginPath();
-      ctx.moveTo(Math.cos(a)*1.5, Math.sin(a)*1.5);
-      ctx.lineTo(Math.cos(a)*2.5, Math.sin(a)*2.5);
+      ctx.moveTo(Math.cos(a)*1.2, Math.sin(a)*1.2);
+      ctx.lineTo(Math.cos(a)*2.8, Math.sin(a)*2.8);
       ctx.stroke();
     }
-    // Center axle
-    ctx.fillStyle = '#666';
+    
+    // Wheel rim highlight
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.arc(0, -0.5, 2.8, 0, Math.PI); ctx.stroke();
+    
+    // Center axle (improved)
+    ctx.fillStyle = '#888';
     ctx.beginPath(); ctx.arc(0, 0, 0.8, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#555';
+    ctx.beginPath(); ctx.arc(0, 0, 0.4, 0, Math.PI*2); ctx.fill();
     ctx.restore();
   }
 
-  // Speed arc indicator - REMOVED (moved to side panel)
-  // Indicator now shows on the side of the screen
+  // Top status indicator bar
+  ctx.fillStyle = danger ? 'rgba(255,107,91,0.3)' : 'rgba(90,176,221,0.2)';
+  ctx.fillRect(-12, -10, 24, 1.5);
 
-  // Emergency LED
+  // Emergency LED (warning beacon)
   if (danger) {
-    ctx.fillStyle = '#e24b4a';
+    ctx.fillStyle = '#FF6B5B';
     ctx.beginPath(); ctx.arc(0, -13, 3.5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,107,91,0.4)';
+    ctx.beginPath(); ctx.arc(0, -13, 5, 0, Math.PI*2); ctx.fill();
   }
 
   ctx.restore();
