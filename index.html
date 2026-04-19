@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Car – سيارة ذكية تفاعلية</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#5A9BA5;--teal-dim:#4A7B85;--teal-light:#7AB3BD;
+  --bg:#0a0e11;--bg-dark:#050708;
+  --surface:#121a24;--surface2:#1c2a38;--surface3:#243447;
+  --border:#2a3d52;--border-light:#3d5577;
+  --text:#d8e4ea;--text-dim:#9ab4c8;--muted:#6a8895;
+  --accent:#9B8F5C;--accent-dark:#8A7E4F;
+  --red:#d87575;--green:#6FA06F;--purple:#8B7BA5;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'Tajawal',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.75;min-height:100vh}
+
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(circle at 15% 40%,rgba(90,155,165,.05) 0%,transparent 50%),
+    radial-gradient(circle at 85% 70%,rgba(155,143,92,.03) 0%,transparent 50%),
+    linear-gradient(rgba(90,155,165,.012) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(90,155,165,.012) 1px,transparent 1px);
+  background-size:100% 100%,100% 100%,50px 50px,50px 50px;
+}
+
+/* ── Nav ── */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,14,17,.85);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  padding:0 32px;
+  display:flex;align-items:center;gap:0;
+}
+.nav-logo{
+  font-family:var(--mono);font-size:14px;font-weight:600;
+  color:#fff;padding:16px 0;margin-left:auto;
+  display:flex;align-items:center;gap:8px;
+  text-decoration:none;
+}
+.nav-logo em{color:var(--teal);font-style:normal}
+.nav-links{display:flex;gap:0;margin-right:auto}
+.nav-links a{
+  font-family:var(--mono);font-size:11px;
+  color:var(--muted);text-decoration:none;
+  padding:18px 14px;
+  letter-spacing:.06em;
+  transition:color .2s;
+  border-bottom:2px solid transparent;
+}
+.nav-links a:hover{color:var(--teal);border-bottom-color:var(--teal)}
+
+/* ── Wrap ── */
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px 80px}
+
+/* ── Hero ── */
+.hero{padding:90px 0 70px;border-bottom:1px solid var(--border);margin-bottom:80px;position:relative}
+.hero::after{content:'';position:absolute;bottom:-1px;left:0;width:140px;height:2px;background:var(--teal)}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:11px;
+  color:var(--teal);border:1px solid var(--teal-dim);
+  background:rgba(90,155,165,.08);
+  padding:6px 14px;border-radius:4px;margin-bottom:24px;
+  letter-spacing:.06em;animation:slideIn .6s ease;
+}
+.badge span{width:6px;height:6px;border-radius:50%;background:var(--teal);display:inline-block;animation:blink 1.4s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+
+h1{
+  font-family:var(--mono);font-size:clamp(36px,6vw,72px);
+  font-weight:600;letter-spacing:-.02em;line-height:1.1;
+  color:#fff;margin-bottom:22px;animation:fadeInUp .7s ease .1s both;
+}
+h1 em{color:var(--teal);font-style:normal}
+.tagline{font-size:17px;color:var(--muted);max-width:660px;margin-bottom:36px;animation:fadeInUp .7s ease .2s both;line-height:1.85}
+.pills{display:flex;flex-wrap:wrap;gap:10px;animation:fadeInUp .7s ease .3s both}
+.pill{
+  font-family:var(--mono);font-size:12px;
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--teal);padding:6px 16px;border-radius:20px;
+  transition:all .3s;cursor:default;
+}
+.pill:hover{border-color:var(--teal);background:rgba(90,155,165,.1)}
+
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Sections ── */
+.section{margin-bottom:80px}
+h2{
+  font-family:var(--mono);font-size:12px;
+  color:var(--teal);letter-spacing:.14em;text-transform:uppercase;
+  margin-bottom:30px;display:flex;align-items:center;gap:12px;
+}
+h2::after{content:'';flex:1;height:1px;background:var(--border)}
+h3{font-size:20px;font-weight:700;color:#fff;margin-bottom:14px;margin-top:26px}
+p{color:var(--muted);font-size:16px;margin-bottom:16px;line-height:1.85}
+p strong{color:var(--text)}
+ol{color:var(--muted);font-size:16px;margin-right:20px}
+ol li{margin-bottom:10px}
+
+/* ── Cards ── */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}
+.card{
+  background:linear-gradient(135deg,rgba(18,26,36,.85),rgba(28,42,56,.6));
+  border:1px solid var(--border);border-radius:14px;padding:28px;
+  position:relative;overflow:hidden;transition:all .4s cubic-bezier(.23,1,.32,1);
+  cursor:default;
+}
+.card::before{
+  content:'';position:absolute;top:-60%;right:-60%;
+  width:160px;height:160px;
+  background:radial-gradient(circle,rgba(90,155,165,.18),transparent 70%);
+  filter:blur(20px);transition:all .5s;
+}
+.card:hover{border-color:var(--teal-light);transform:translateY(-6px);box-shadow:0 20px 50px rgba(90,155,165,.15)}
+.card:hover::before{top:-20%;right:-20%;width:220px;height:220px}
+.card-icon{font-size:38px;margin-bottom:14px;display:inline-block;transition:transform .3s}
+.card:hover .card-icon{transform:scale(1.1) rotate(5deg)}
+.card-name{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--teal-light);margin-bottom:10px;letter-spacing:.1em;text-transform:uppercase}
+.card-desc{font-size:14px;color:var(--text-dim);line-height:1.8;position:relative;z-index:1}
+
+/* ── System Diagram ── */
+.diagram-box{
+  background:linear-gradient(135deg,rgba(12,20,28,.6),rgba(18,26,36,.4));
+  border:1px solid var(--border);border-radius:14px;padding:32px;margin:28px 0;
+  transition:border-color .3s;
+}
+.diagram-box:hover{border-color:var(--teal-light)}
+.diagram-box svg{width:100%}
+
+/* ── Wiring ── */
+.wiring-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:28px;align-items:start}
+@media(max-width:860px){.wiring-grid{grid-template-columns:1fr}}
+.wiring-svg-box{
+  background:rgba(12,20,28,.5);border:1px solid var(--border);
+  border-radius:14px;padding:20px;transition:border-color .3s;
+}
+.wiring-svg-box:hover{border-color:var(--teal)}
+.wiring-svg-box svg{width:100%;height:auto}
+.wire-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:13px}
+.wire-table th{
+  background:var(--surface2);color:var(--teal);font-size:10px;
+  letter-spacing:.1em;text-transform:uppercase;padding:11px 12px;
+  text-align:right;border-bottom:1px solid var(--border);font-weight:600;
+}
+.wire-table td{padding:12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top}
+.wire-table tr{transition:background .2s;cursor:default}
+.wire-table tr:hover td{background:rgba(90,155,165,.08)}
+.wire-table tr.hl td{background:rgba(90,155,165,.14);border-right:3px solid var(--teal);padding-right:9px}
+.pin{display:inline-block;background:var(--surface2);border:1px solid var(--border);color:var(--accent);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.comp{color:var(--teal);font-weight:600}
+.desc{color:var(--muted);font-family:var(--sans);font-size:13px}
+
+/* ── Flow ── */
+.flow{display:flex;flex-direction:column;gap:0}
+.flow-step{
+  display:flex;gap:22px;align-items:flex-start;
+  padding:26px 14px;border-bottom:1px solid var(--border);
+  border-radius:8px;margin-bottom:10px;transition:all .35s;
+}
+.flow-step:hover{background:linear-gradient(90deg,rgba(90,155,165,.07),transparent);border-color:var(--teal);padding-right:18px}
+.flow-step:last-child{border-bottom:none}
+.step-num{
+  min-width:48px;height:48px;
+  background:linear-gradient(135deg,rgba(90,155,165,.2),rgba(90,155,165,.1));
+  border:2px solid var(--teal-light);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:15px;color:var(--teal-light);font-weight:800;
+  flex-shrink:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 0 14px rgba(90,155,165,.2);
+}
+.flow-step:hover .step-num{background:linear-gradient(135deg,var(--teal),var(--teal-dim));color:var(--bg);box-shadow:0 0 28px rgba(90,155,165,.5);transform:scale(1.15)}
+.step-content h4{font-size:17px;font-weight:700;color:#fff;margin-bottom:6px}
+.step-content p{margin:0;font-size:14px}
+
+/* ── Commands ── */
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.cmd-card{
+  background:linear-gradient(135deg,rgba(18,26,36,.7),rgba(28,42,56,.5));
+  border:1px solid var(--border);border-radius:12px;padding:16px;
+  display:flex;align-items:center;gap:14px;
+  transition:all .35s;
+}
+.cmd-card:hover{border-color:var(--teal-light);background:linear-gradient(135deg,rgba(90,155,165,.1),rgba(28,42,56,.7));transform:translateY(-4px)}
+.cmd-key{
+  font-family:var(--mono);font-size:20px;font-weight:900;
+  background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  min-width:28px;text-align:center;
+}
+.cmd-label{font-size:13px;color:var(--text)}
+
+/* ── Code blocks ── */
+.code-block{
+  background:linear-gradient(135deg,rgba(12,20,28,.7),rgba(18,26,36,.5));
+  border:1px solid var(--border);border-radius:14px;overflow:hidden;
+  margin-bottom:26px;transition:border-color .3s;
+}
+.code-block:hover{border-color:var(--teal-light)}
+.code-header{
+  background:var(--surface2);border-bottom:1px solid var(--border);
+  padding:11px 16px;display:flex;align-items:center;gap:10px;
+}
+.dots{display:flex;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%}
+.dot-r{background:#ff5f57}.dot-y{background:#A89968}.dot-g{background:#28c840}
+.code-label{font-family:var(--mono);font-size:11px;color:var(--muted);margin-right:auto}
+pre{padding:20px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.9;color:var(--text)}
+.kw{color:#7dd3fc}.fn{color:#86efac}.num{color:var(--accent)}.cm{color:#4a6a80;font-style:italic}.str{color:#fda4af}.type{color:#c084fc}
+code{color:var(--red);background:var(--surface);padding:2px 7px;border-radius:4px;font-family:var(--mono);font-size:14px}
+code.g{color:var(--green)}code.t{color:var(--teal)}
+
+/* ── Formula ── */
+.formula-box{
+  background:linear-gradient(135deg,rgba(90,155,165,.08),rgba(155,143,92,.04));
+  border:2px solid var(--border-light);border-radius:14px;padding:28px;
+  display:flex;align-items:center;gap:28px;flex-wrap:wrap;
+  transition:border-color .3s;margin-bottom:24px;
+}
+.formula-box:hover{border-color:var(--teal-light)}
+.formula-eq{font-family:var(--mono);font-size:20px;color:#fff;font-weight:600}
+.formula-eq .t{color:var(--teal)}.formula-eq .a{color:var(--accent)}
+.formula-note{font-size:14px;color:var(--muted);line-height:1.8}
+
+/* ── Future cards ── */
+.future-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.future-card{
+  background:linear-gradient(135deg,rgba(12,20,28,.8),rgba(28,42,56,.4));
+  border:1px solid var(--border);border-radius:14px;padding:26px;
+  transition:all .4s cubic-bezier(.23,1,.32,1);position:relative;overflow:hidden;
+}
+.future-card::before{
+  content:'';position:absolute;top:-50%;right:-50%;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(90,155,165,.14),transparent 70%);
+  filter:blur(20px);transition:all .5s;
+}
+.future-card:hover{border-color:var(--teal-light);transform:translateY(-8px);box-shadow:0 24px 60px rgba(90,155,165,.15)}
+.future-card:hover::before{top:-20%;right:-20%;width:260px;height:260px}
+.future-card .icon{font-size:30px;margin-bottom:10px;position:relative;z-index:1}
+.future-card h4{font-size:16px;font-weight:700;color:#fff;margin-bottom:8px;position:relative;z-index:1}
+.future-card p{font-size:14px;margin:0;position:relative;z-index:1}
+
+/* ────────── SIMULATOR ────────── */
+.sim-section{background:linear-gradient(135deg,rgba(12,20,28,.5),rgba(18,26,36,.3));border:1px solid var(--border);border-radius:16px;padding:28px;margin-top:24px}
+.sim-layout{display:grid;grid-template-columns:1fr 270px;gap:20px;align-items:start}
+@media(max-width:800px){.sim-layout{grid-template-columns:1fr}}
+#simCanvas{display:block;width:100%;border-radius:10px;border:1px solid var(--border-light);cursor:crosshair;background:#070b0e}
+.canvas-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.cstat{background:rgba(90,155,165,.07);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.cstat .lbl{display:block;font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
+.cstat .val{display:block;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--teal)}
+.cstat .val.danger{color:var(--red)}
+.cstat .val.warn{color:var(--accent)}
+.cstat .val.ok{color:var(--green)}
+.ctrl-panel{display:flex;flex-direction:column;gap:10px}
+.ctrl-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px}
+.ctrl-card h4{font-family:var(--mono);font-size:10px;color:var(--teal);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px}
+.dpad{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;width:126px;margin:0 auto}
+.dpad-btn{
+  height:38px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;cursor:pointer;font-size:15px;
+  display:flex;align-items:center;justify-content:center;
+  user-select:none;color:var(--text);
+  transition:background .12s,border-color .12s,transform .1s;
+}
+.dpad-btn:hover{background:var(--surface3);border-color:var(--border-light)}
+.dpad-btn.pressed{background:rgba(90,155,165,.25);border-color:var(--teal);color:var(--teal-light);transform:scale(.93)}
+.dpad-empty{visibility:hidden}
+.stop-btn{
+  width:100%;height:34px;
+  background:rgba(216,117,117,.1);border:1px solid rgba(216,117,117,.4);
+  border-radius:8px;color:var(--red);font-size:12px;font-weight:700;
+  cursor:pointer;margin-top:8px;font-family:var(--sans);
+  transition:background .2s;
+}
+.stop-btn:hover{background:rgba(216,117,117,.2)}
+.sldr-wrap{margin-bottom:10px}
+.sldr-wrap label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px}
+.sldr-wrap label span{color:var(--teal);font-family:var(--mono)}
+input[type=range]{
+  width:100%;height:4px;border-radius:2px;
+  background:var(--border);outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:var(--teal);cursor:pointer;
+}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--teal);border:none}
+.obs-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.obs-btn{
+  height:30px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:6px;font-size:11px;color:var(--text-dim);cursor:pointer;
+  font-family:var(--sans);transition:border-color .2s;
+}
+.obs-btn:hover{border-color:var(--teal);color:var(--text)}
+.reset-btn{
+  width:100%;height:32px;background:rgba(155,143,92,.1);border:1px solid rgba(155,143,92,.4);
+  border-radius:8px;color:var(--accent);font-size:11px;font-weight:700;cursor:pointer;
+  margin-top:8px;text-transform:uppercase;letter-spacing:.06em;font-family:var(--sans);
+  transition:background .2s;
+}
+.reset-btn:hover{background:rgba(155,143,92,.2)}
+.sim-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+@media(max-width:600px){.sim-info-grid{grid-template-columns:1fr}}
+.sim-info-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px}
+.sim-info-card h4{font-family:var(--mono);font-size:11px;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.sim-info-card ul{list-style:none}
+.sim-info-card li{font-size:13px;color:var(--text-dim);padding:5px 0;border-bottom:1px solid var(--border)}
+.sim-info-card li:last-child{border-bottom:none}
+.sim-info-card strong{color:var(--teal)}
+
+/* ── Footer ── */
+.footer{
+  border-top:1px solid var(--border);padding-top:36px;
+  display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:center;
+}
+.footer p{margin:0;font-size:13px;color:var(--muted)}
+.footer .t{color:var(--teal);font-weight:600}
+
+/* ── Scroll animations ── */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+@media(max-width:700px){
+  h1{font-size:28px}
+  .sim-layout{grid-template-columns:1fr}
+  .canvas-stats{grid-template-columns:1fr 1fr}
+  .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#"><em>🚗</em> Smart Car</a>
+  <div class="nav-links">
+    <a href="#overview">نظرة عامة</a>
+    <a href="#components">المكونات</a>
+    <a href="#wiring">التوصيلات</a>
+    <a href="#how">كيف يعمل</a>
+    <a href="#code">الكود</a>
+    <a href="#sim">المحاكي</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- HERO -->
+<header class="hero">
+  <div class="badge"><span></span> 🚀 مشروع تفاعلي · 2025/2026</div>
+  <h1><em>🚗</em> Smart Car</h1>
+  <p class="tagline">سيارة ذكية تعمل بالتحكم اللاسلكي عبر Bluetooth مع نظام تجنب التصادم التلقائي باستخدام مستشعر الموجات فوق الصوتية. تجمع ثلاث تقنيات متقدمة في نظام واحد مدمج.</p>
+  <div class="pills">
+    <span class="pill">🧠 Arduino Uno</span>
+    <span class="pill">📡 Bluetooth HC-05/06</span>
+    <span class="pill">📊 HC-SR04 Ultrasonic</span>
+    <span class="pill">⚡ L298N Motor Driver</span>
+    <span class="pill">🔄 SG90 Servo</span>
+    <span class="pill">💻 C / C++</span>
+  </div>
+</header>
+
+<!-- OVERVIEW -->
+<section class="section reveal" id="overview">
+  <h2>نظرة عامة سريعة</h2>
+  <p>هذا المشروع يوضح كيفية دمج <strong>ثلاث تقنيات أساسية</strong> في نظام واحد متكامل:</p>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">📶</div>
+      <div class="card-name">الاتصال اللاسلكي</div>
+      <div class="card-desc">التحكم من الهاتف عبر Bluetooth بإرسال حروف أوامر بسيطة وفعّالة.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚙️</div>
+      <div class="card-name">التحكم في المحركات</div>
+      <div class="card-desc">إدارة 4 محركات بسرعات واتجاهات مختلفة عبر إشارات PWM دقيقة.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🎯</div>
+      <div class="card-name">الاستشعار الذكي</div>
+      <div class="card-desc">كشف العوائق تلقائياً بمستشعر فوق صوتي وإيقاف السيارة فوراً.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section class="section reveal">
+  <h2>معمارية النظام</h2>
+  <div class="diagram-box">
+    <svg viewBox="0 0 1000 260" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#5A9BA5"/>
+        </marker>
+        <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#9B8F5C"/>
+        </marker>
+      </defs>
+      <!-- Arduino -->
+      <rect x="30" y="80" width="130" height="90" fill="#1a2430" stroke="#5A9BA5" stroke-width="2" rx="10"/>
+      <text x="95" y="122" text-anchor="middle" fill="#7AB3BD" font-family="IBM Plex Mono" font-size="11" font-weight="600">Arduino</text>
+      <text x="95" y="140" text-anchor="middle" fill="#9ab4c8" font-family="Tajawal" font-size="12">العقل المحوري</text>
+      <!-- Bluetooth -->
+      <rect x="240" y="30" width="130" height="70" fill="#1a2430" stroke="#5A9BA5" stroke-width="1.5" rx="8"/>
+      <text x="305" y="62" text-anchor="middle" fill="#7AB3BD" font-family="IBM Plex Mono" font-size="10" font-weight="600">HC-05 BT</text>
+      <text x="305" y="80" text-anchor="middle" fill="#9ab4c8" font-family="Tajawal" font-size="11">أوامر لاسلكية</text>
+      <!-- HC-SR04 -->
+      <rect x="240" y="145" width="130" height="70" fill="#1a2430" stroke="#5A9BA5" stroke-width="1.5" rx="8"/>
+      <text x="305" y="177" text-anchor="middle" fill="#7AB3BD" font-family="IBM Plex Mono" font-size="10" font-weight="600">HC-SR04</text>
+      <text x="305" y="195" text-anchor="middle" fill="#9ab4c8" font-family="Tajawal" font-size="11">استشعار المسافة</text>
+      <!-- L298N -->
+      <rect x="460" y="80" width="130" height="90" fill="#1a2430" stroke="#9B8F5C" stroke-width="2" rx="10"/>
+      <text x="525" y="122" text-anchor="middle" fill="#A89968" font-family="IBM Plex Mono" font-size="11" font-weight="600">L298N</text>
+      <text x="525" y="140" text-anchor="middle" fill="#9ab4c8" font-family="Tajawal" font-size="12">مشغّل محركات</text>
+      <!-- Motors -->
+      <rect x="680" y="50" width="110" height="60" fill="#1a2430" stroke="#9B8F5C" stroke-width="1.5" rx="8"/>
+      <text x="735" y="77" text-anchor="middle" fill="#A89968" font-family="Tajawal" font-size="12" font-weight="700">DC Motors × 4</text>
+      <text x="735" y="98" text-anchor="middle" fill="#6a8895" font-family="Tajawal" font-size="11">دفع السيارة</text>
+      <!-- Servo -->
+      <rect x="680" y="145" width="110" height="60" fill="#1a2430" stroke="#6FA06F" stroke-width="1.5" rx="8"/>
+      <text x="735" y="172" text-anchor="middle" fill="#6FA06F" font-family="Tajawal" font-size="12" font-weight="700">SG90 Servo</text>
+      <text x="735" y="192" text-anchor="middle" fill="#6a8895" font-family="Tajawal" font-size="11">تحريك المستشعر</text>
+      <!-- Phone -->
+      <rect x="820" y="60" width="100" height="50" fill="#1a2430" stroke="#5A9BA5" stroke-width="1.5" rx="8" stroke-dasharray="4"/>
+      <text x="870" y="82" text-anchor="middle" fill="#7AB3BD" font-family="Tajawal" font-size="12">📱 هاتف</text>
+      <text x="870" y="100" text-anchor="middle" fill="#6a8895" font-family="Tajawal" font-size="11">App BT</text>
+      <!-- Lines -->
+      <line x1="160" y1="115" x2="240" y2="70" stroke="#5A9BA5" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="160" y1="130" x2="240" y2="175" stroke="#5A9BA5" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="160" y1="122" x2="460" y2="122" stroke="#9B8F5C" stroke-width="1.5" marker-end="url(#arr2)"/>
+      <line x1="590" y1="100" x2="680" y2="80" stroke="#9B8F5C" stroke-width="1.5" marker-end="url(#arr2)"/>
+      <line x1="590" y1="145" x2="680" y2="165" stroke="#5A9BA5" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="790" y1="85" x2="820" y2="85" stroke="#5A9BA5" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arr)"/>
+      <!-- Labels -->
+      <text x="200" y="93" fill="#4a6a80" font-family="Tajawal" font-size="10">UART</text>
+      <text x="200" y="155" fill="#4a6a80" font-family="Tajawal" font-size="10">Analog</text>
+      <text x="310" y="115" fill="#9B8F5C" font-family="IBM Plex Mono" font-size="10">PWM</text>
+      <text x="625" y="88" fill="#9B8F5C" font-family="Tajawal" font-size="10">12V</text>
+      <text x="630" y="153" fill="#4a6a80" font-family="IBM Plex Mono" font-size="10">D9</text>
+    </svg>
+  </div>
+</section>
+
+<!-- WHAT IS IT -->
+<section class="section reveal">
+  <h2>ما هو المشروع؟</h2>
+  <p>هذا المشروع عبارة عن <strong>سيارة روبوتية مصغّرة ذكية</strong> تتحكم فيها من هاتفك الذكي عبر البلوتوث. السيارة لا تنتظر أوامرك فقط — بل هي أيضاً <strong>تُفكّر بنفسها</strong>: إذا اقتربت من عائق، تتوقف فوراً وتُضيء مؤشر تحذير، ثم تعود لوضع الانتظار بعد إزالة العائق.</p>
+  <p>الهدف هو دمج <strong>ثلاث تقنيات أساسية</strong> في نظام واحد متكامل:</p>
+  <ol>
+    <li><strong style="color:var(--text)">التحكم اللاسلكي</strong> — التواصل مع الهاتف عبر Bluetooth</li>
+    <li><strong style="color:var(--text)">قيادة المحركات</strong> — التحكم بـ 4 محركات وServo بدقة PWM</li>
+    <li><strong style="color:var(--text)">الإحساس بالبيئة</strong> — قياس المسافة واكتشاف العوائق تلقائياً</li>
+  </ol>
+</section>
+
+<!-- COMPONENTS -->
+<section class="section reveal" id="components">
+  <h2>المكونات</h2>
+  <p>جميع المكونات التي تحتاجها مع شرح دور كل واحدة:</p>
+  <div class="card-grid">
+    <div class="card"><div class="card-icon">🧠</div><div class="card-name">Arduino Uno</div><div class="card-desc">القلب والعقل — يعالج كل البيانات وينفّذ الأوامر والمنطق الكامل.</div></div>
+    <div class="card"><div class="card-icon">⚙️</div><div class="card-name">L298N Motor Driver</div><div class="card-desc">يُتحكّم في 4 محركات بسرعات واتجاهات مختلفة، ويُغذّي Arduino بالـ 5V.</div></div>
+    <div class="card"><div class="card-icon">🔵</div><div class="card-name">HC-05 / HC-06</div><div class="card-desc">وحدة Bluetooth تستقبل أوامر الحركة والسرعة من تطبيق الهاتف.</div></div>
+    <div class="card"><div class="card-icon">📡</div><div class="card-name">HC-SR04</div><div class="card-desc">مستشعر فوق صوتي يقيس المسافة — يوقف السيارة عند أقل من 20 سم.</div></div>
+    <div class="card"><div class="card-icon">🔄</div><div class="card-name">SG90 Servo</div><div class="card-desc">يُحرّك المستشعر يميناً ويساراً بين 20° و160° لتوسيع مجال الرؤية.</div></div>
+    <div class="card"><div class="card-icon">🔋</div><div class="card-name">18650 Li-ion × 2</div><div class="card-desc">7.4V إجمالاً — مصدر الطاقة الرئيسي القابل لإعادة الشحن.</div></div>
+    <div class="card"><div class="card-icon">💡</div><div class="card-name">LED تحذير</div><div class="card-desc">يضيء كمؤشر تحذير عند اكتشاف عائق قريب جداً.</div></div>
+    <div class="card"><div class="card-icon">🚗</div><div class="card-name">DC Motors × 4</div><div class="card-desc">أربعة محركات متطابقة لتحريك السيارة في جميع الاتجاهات بسلاسة.</div></div>
+  </div>
+</section>
+
+<!-- WIRING -->
+<section class="section reveal" id="wiring">
+  <h2>التوصيلات والأسلاك</h2>
+  <p style="margin-bottom:20px">الرسم التخطيطي يوضح كيفية توصيل جميع المكونات بـ Arduino. 🟡 أصفر = <strong>PWM</strong> · 🟢 أخضر = <strong>رقمي</strong> · 🔵 أزرق = <strong>تناظري</strong>.</p>
+  <div class="wiring-grid">
+    <div class="wiring-svg-box">
+      <svg viewBox="0 0 320 480" xmlns="http://www.w3.org/2000/svg">
+        <!-- Arduino board -->
+        <rect x="15" y="30" width="100" height="420" fill="#0b1420" stroke="#5A9BA5" stroke-width="2" rx="8"/>
+        <text x="65" y="52" text-anchor="middle" fill="#5A9BA5" font-family="IBM Plex Mono" font-size="11" font-weight="600">Arduino</text>
+        <text x="65" y="66" text-anchor="middle" fill="#5A9BA5" font-family="IBM Plex Mono" font-size="9">Uno R3</text>
+
+        <!-- PWM Pins -->
+        <circle cx="115" cy="100" r="4" fill="#9B8F5C"/><text x="125" y="104" fill="#9B8F5C" font-family="IBM Plex Mono" font-size="10">D11 ~</text>
+        <circle cx="115" cy="125" r="4" fill="#9B8F5C"/><text x="125" y="129" fill="#9B8F5C" font-family="IBM Plex Mono" font-size="10">D10 ~</text>
+        <circle cx="115" cy="150" r="4" fill="#9B8F5C"/><text x="125" y="154" fill="#9B8F5C" font-family="IBM Plex Mono" font-size="10">D6  ~</text>
+        <circle cx="115" cy="175" r="4" fill="#9B8F5C"/><text x="125" y="179" fill="#9B8F5C" font-family="IBM Plex Mono" font-size="10">D5  ~</text>
+        <circle cx="115" cy="200" r="4" fill="#9B8F5C"/><text x="125" y="204" fill="#9B8F5C" font-family="IBM Plex Mono" font-size="10">D9  ~</text>
+
+        <!-- Digital Pins -->
+        <circle cx="115" cy="240" r="4" fill="#6FA06F"/><text x="125" y="244" fill="#6FA06F" font-family="IBM Plex Mono" font-size="10">D13</text>
+        <circle cx="115" cy="265" r="4" fill="#6FA06F"/><text x="125" y="269" fill="#6FA06F" font-family="IBM Plex Mono" font-size="10">TX D1</text>
+        <circle cx="115" cy="290" r="4" fill="#6FA06F"/><text x="125" y="294" fill="#6FA06F" font-family="IBM Plex Mono" font-size="10">RX D0</text>
+
+        <!-- Analog Pins -->
+        <circle cx="115" cy="330" r="4" fill="#5A9BA5"/><text x="125" y="334" fill="#5A9BA5" font-family="IBM Plex Mono" font-size="10">A1</text>
+        <circle cx="115" cy="355" r="4" fill="#5A9BA5"/><text x="125" y="359" fill="#5A9BA5" font-family="IBM Plex Mono" font-size="10">A2</text>
+
+        <!-- Power -->
+        <circle cx="115" cy="395" r="4" fill="#d87575"/><text x="125" y="399" fill="#d87575" font-family="IBM Plex Mono" font-size="10">Vin</text>
+        <circle cx="115" cy="420" r="4" fill="#888780"/><text x="125" y="424" fill="#888780" font-family="IBM Plex Mono" font-size="10">GND</text>
+
+        <!-- L298N Component -->
+        <rect x="210" y="80" width="95" height="60" fill="#0b1420" stroke="#9B8F5C" stroke-width="1.5" rx="6"/>
+        <text x="257" y="108" text-anchor="middle" fill="#A89968" font-family="IBM Plex Mono" font-size="10" font-weight="600">L298N</text>
+        <text x="257" y="126" text-anchor="middle" fill="#6a8895" font-family="Tajawal" font-size="10">Motor Driver</text>
+
+        <!-- LED -->
+        <rect x="220" y="220" width="75" height="40" fill="#0b1420" stroke="#6FA06F" stroke-width="1.5" rx="6"/>
+        <text x="257" y="244" text-anchor="middle" fill="#6FA06F" font-family="IBM Plex Mono" font-size="10" font-weight="600">LED</text>
+
+        <!-- Bluetooth -->
+        <rect x="210" y="248" width="95" height="55" fill="#0b1420" stroke="#5A9BA5" stroke-width="1.5" rx="6"/>
+        <text x="257" y="272" text-anchor="middle" fill="#7AB3BD" font-family="IBM Plex Mono" font-size="10" font-weight="600">HC-05</text>
+        <text x="257" y="290" text-anchor="middle" fill="#6a8895" font-family="Tajawal" font-size="10">Bluetooth</text>
+
+        <!-- HC-SR04 -->
+        <rect x="210" y="315" width="95" height="55" fill="#0b1420" stroke="#5A9BA5" stroke-width="1.5" rx="6"/>
+        <text x="257" y="340" text-anchor="middle" fill="#7AB3BD" font-family="IBM Plex Mono" font-size="10" font-weight="600">HC-SR04</text>
+        <text x="257" y="358" text-anchor="middle" fill="#6a8895" font-family="Tajawal" font-size="10">Ultrasonic</text>
+
+        <!-- Servo -->
+        <rect x="210" y="385" width="95" height="45" fill="#0b1420" stroke="#9B8F5C" stroke-width="1.5" rx="6"/>
+        <text x="257" y="411" text-anchor="middle" fill="#A89968" font-family="IBM Plex Mono" font-size="10" font-weight="600">SG90 Servo</text>
+
+        <!-- Wires -->
+        <line x1="115" y1="100" x2="210" y2="100" stroke="#9B8F5C" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <line x1="115" y1="125" x2="210" y2="108" stroke="#9B8F5C" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <line x1="115" y1="150" x2="210" y2="118" stroke="#9B8F5C" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <line x1="115" y1="175" x2="210" y2="128" stroke="#9B8F5C" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <line x1="115" y1="200" x2="210" y2="408" stroke="#9B8F5C" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <line x1="115" y1="240" x2="220" y2="240" stroke="#6FA06F" stroke-width="1.5"/>
+        <line x1="115" y1="265" x2="210" y2="268" stroke="#6FA06F" stroke-width="1.5"/>
+        <line x1="115" y1="290" x2="210" y2="278" stroke="#6FA06F" stroke-width="1.5"/>
+        <line x1="115" y1="330" x2="210" y2="335" stroke="#5A9BA5" stroke-width="1.5" stroke-dasharray="3,3"/>
+        <line x1="115" y1="355" x2="210" y2="350" stroke="#5A9BA5" stroke-width="1.5" stroke-dasharray="3,3"/>
+        <line x1="115" y1="395" x2="210" y2="148" stroke="#d87575" stroke-width="1" stroke-dasharray="2,4" opacity="0.5"/>
+        <line x1="115" y1="420" x2="210" y2="155" stroke="#888780" stroke-width="1" stroke-dasharray="2,4" opacity="0.5"/>
+
+        <!-- Legend -->
+        <rect x="15" y="455" width="290" height="20" fill="rgba(0,0,0,0.3)" rx="4"/>
+        <circle cx="30" cy="465" r="3" fill="#9B8F5C"/>
+        <text x="38" y="469" fill="#9B8F5C" font-family="Tajawal" font-size="9">PWM</text>
+        <circle cx="75" cy="465" r="3" fill="#6FA06F"/>
+        <text x="83" y="469" fill="#6FA06F" font-family="Tajawal" font-size="9">رقمي</text>
+        <circle cx="115" cy="465" r="3" fill="#5A9BA5"/>
+        <text x="123" y="469" fill="#5A9BA5" font-family="Tajawal" font-size="9">تناظري</text>
+        <circle cx="160" cy="465" r="3" fill="#d87575"/>
+        <text x="168" y="469" fill="#d87575" font-family="Tajawal" font-size="9">طاقة</text>
+      </svg>
+    </div>
+    <div>
+      <table class="wire-table">
+        <thead>
+          <tr><th>Pin</th><th>يتصل بـ</th><th>الوظيفة</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="pin">D11~</span></td><td class="comp">L298N IN1</td><td class="desc">محرك يمين / أمام</td></tr>
+          <tr><td><span class="pin">D10~</span></td><td class="comp">L298N IN2</td><td class="desc">محرك يمين / خلف</td></tr>
+          <tr><td><span class="pin">D6~</span></td><td class="comp">L298N IN3</td><td class="desc">محرك يسار / أمام</td></tr>
+          <tr><td><span class="pin">D5~</span></td><td class="comp">L298N IN4</td><td class="desc">محرك يسار / خلف</td></tr>
+          <tr><td><span class="pin">D9~</span></td><td class="comp">Servo Signal</td><td class="desc">تحكم في Servo</td></tr>
+          <tr><td><span class="pin">D13</span></td><td class="comp">LED (+)</td><td class="desc">مؤشر تحذير</td></tr>
+          <tr><td><span class="pin">TX D1</span></td><td class="comp">BT RX</td><td class="desc">إرسال بيانات</td></tr>
+          <tr><td><span class="pin">RX D0</span></td><td class="comp">BT TX</td><td class="desc">استقبال أوامر</td></tr>
+          <tr><td><span class="pin">A1</span></td><td class="comp">HC-SR04 TRIG</td><td class="desc">نبضة إرسال صوتية</td></tr>
+          <tr><td><span class="pin">A2</span></td><td class="comp">HC-SR04 ECHO</td><td class="desc">استقبال الصدى</td></tr>
+          <tr><td><span class="pin">Vin</span></td><td class="comp">L298N 5V Out</td><td class="desc">تغذية 5V</td></tr>
+          <tr><td><span class="pin">GND</span></td><td class="comp">جميع GND</td><td class="desc">أرضية مشتركة</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:13px;margin-top:14px;color:var(--muted)">⚡ <strong>مسار الطاقة:</strong> بطارية 7.4V ← مدخل 12V في L298N ← منظّم 5V الداخلي ← Arduino عبر Vin.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section reveal" id="how">
+  <h2>كيف يعمل النظام؟</h2>
+  <p>تسلسل العمليات الذي يحدث في كل لحظة:</p>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>⚡ التشغيل الأولي</h4>
+        <p>عند تشغيل البطارية، الـ Servo يبدأ المسح من 90° (الأمام)، ووحدة Bluetooth تنتظر الأوامر من الهاتف.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>🔄 المسح المستمر للبيئة</h4>
+        <p>الـ Servo يتأرجح بين 20° و160° بسلاسة. عند كل زاوية (كل 30ms)، يقرأ المستشعر HC-SR04 المسافة الحالية باستخدام <code>millis()</code> لعدم تجميد البرنامج.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>📲 استقبال أوامر الحركة</h4>
+        <p>إذا لم يكن هناك عائق قريب ← السيارة تُنفّذ أمر الحركة أو السرعة القادم من الهاتف الذكي عبر UART.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>⚠️ اكتشاف العائق الطارئ</h4>
+        <p>مسافة أقل من 20 سم؟ <strong>توقف فوري</strong> + <strong>LED يضيء</strong> + البرنامج يتجاهل أي أوامر حركة إضافية حتى يُزال العائق.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h4>✅ الاستئناف الذاتي</h4>
+        <p>بعد إزالة العائق (مسافة > 20 سم) ← LED يُطفأ والسيارة ترجع لوضع الانتظار تلقائياً دون أي تدخل بشري.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMANDS -->
+<section class="section reveal">
+  <h2>أوامر التحكم عبر Bluetooth</h2>
+  <p>الهاتف يرسل حرفاً واحداً. الأرقام 0–9 تتحكم في السرعة (0 = أبطأ، 9 = أسرع):</p>
+  <div class="cmd-grid">
+    <div class="cmd-card"><span class="cmd-key">F</span><span class="cmd-label">💨 للأمام</span></div>
+    <div class="cmd-card"><span class="cmd-key">B</span><span class="cmd-label">⬅️ للخلف</span></div>
+    <div class="cmd-card"><span class="cmd-key">L</span><span class="cmd-label">↩ يساراً</span></div>
+    <div class="cmd-card"><span class="cmd-key">R</span><span class="cmd-label">↪ يميناً</span></div>
+    <div class="cmd-card"><span class="cmd-key">G</span><span class="cmd-label">↖ أمام-يسار</span></div>
+    <div class="cmd-card"><span class="cmd-key">I</span><span class="cmd-label">↗ أمام-يمين</span></div>
+    <div class="cmd-card"><span class="cmd-key">H</span><span class="cmd-label">↙ خلف-يسار</span></div>
+    <div class="cmd-card"><span class="cmd-key">J</span><span class="cmd-label">↘ خلف-يمين</span></div>
+    <div class="cmd-card"><span class="cmd-key">S</span><span class="cmd-label">🛑 توقف</span></div>
+    <div class="cmd-card"><span class="cmd-key">0–9</span><span class="cmd-label">⚡ السرعة</span></div>
+    <div class="cmd-card"><span class="cmd-key">q</span><span class="cmd-label">🔥 أقصى سرعة</span></div>
+  </div>
+</section>
+
+<!-- CODE -->
+<section class="section reveal" id="code">
+  <h2>شرح الكود البرمجي</h2>
+
+  <h3>📏 1. قياس المسافة من HC-SR04</h3>
+  <p>المستشعر يُرسل نبضة صوتية ويحسب وقت الصدى. الصيغة الرياضية:</p>
+  <div class="formula-box">
+    <div class="formula-eq">المسافة = <span class="t">(</span>الزمن × <span class="a">0.034</span><span class="t">)</span> ÷ <span class="a">2</span></div>
+    <div class="formula-note"><strong>0.034</strong> = سرعة الصوت (سم/ميكروثانية)<br>÷ <strong>2</strong> لأن الصوت يقطع المسافة ذهاباً وإياباً</div>
+  </div>
+  <div class="code-block">
+    <div class="code-header">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="code-label">getDistance.ino</span>
+    </div>
+<pre><span class="type">long</span> <span class="fn">getDistance</span>() {
+  <span class="fn">digitalWrite</span>(TRIG_PIN, <span class="kw">LOW</span>);
+  <span class="fn">delayMicroseconds</span>(<span class="num">2</span>);
+  <span class="fn">digitalWrite</span>(TRIG_PIN, <span class="kw">HIGH</span>);      <span class="cm">// أرسل نبضة 10µs</span>
+  <span class="fn">delayMicroseconds</span>(<span class="num">10</span>);
+  <span class="fn">digitalWrite</span>(TRIG_PIN, <span class="kw">LOW</span>);
+
+  <span class="type">long</span> duration = <span class="fn">pulseIn</span>(ECHO_PIN, <span class="kw">HIGH</span>, <span class="num">30000</span>);
+  <span class="kw">return</span> duration * <span class="num">0.034</span> / <span class="num">2</span>;        <span class="cm">// حوّل الزمن إلى cm</span>
+}</pre>
+  </div>
+
+  <h3>🔄 2. المسح التفاعلي بدون delay()</h3>
+  <p>بدلاً من <code>delay()</code> التي تُجمّد البرنامج، نستخدم <code class="g">millis()</code> لتعدد المهام:</p>
+  <div class="code-block">
+    <div class="code-header">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="code-label">sweepServo.ino</span>
+    </div>
+<pre><span class="type">void</span> <span class="fn">sweepServo</span>() {
+  <span class="kw">if</span> (<span class="fn">millis</span>() - lastSweepTime >= <span class="num">30</span>) {
+    lastSweepTime = <span class="fn">millis</span>();
+    servoAngle += servoDir * <span class="num">2</span>;            <span class="cm">// تحرّك 2 درجة</span>
+
+    <span class="kw">if</span> (servoAngle >= <span class="num">160</span> || servoAngle <= <span class="num">20</span>)
+      servoDir *= -<span class="num">1</span>;                         <span class="cm">// اعكس الاتجاه عند الحد</span>
+
+    myServo.<span class="fn">write</span>(servoAngle);
+
+    <span class="type">long</span> dist = <span class="fn">getDistance</span>();
+    <span class="kw">if</span> (dist > <span class="num">0</span> && dist < <span class="num">20</span>) {          <span class="cm">// عائق! ⚠️</span>
+      obstacle = <span class="kw">true</span>;
+      <span class="fn">Stop</span>();
+      <span class="fn">digitalWrite</span>(LED, <span class="kw">HIGH</span>);
+    } <span class="kw">else</span> {
+      obstacle = <span class="kw">false</span>;
+      <span class="fn">digitalWrite</span>(LED, <span class="kw">LOW</span>);
+    }
+  }
+}</pre>
+  </div>
+
+  <h3>⚡ 3. الحلقة الرئيسية loop()</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="code-label">loop.ino</span>
+    </div>
+<pre><span class="type">void</span> <span class="fn">loop</span>() {
+  <span class="fn">sweepServo</span>();                              <span class="cm">// مسح مستمر بدون توقف</span>
+
+  <span class="kw">if</span> (<span class="fn">Serial</span>.<span class="fn">available</span>() > <span class="num">0</span>) {
+    command = <span class="fn">Serial</span>.<span class="fn">read</span>();                <span class="cm">// استقبل أمر من Bluetooth</span>
+
+    <span class="kw">if</span> (obstacle) <span class="kw">return</span>;                   <span class="cm">// عائق؟ تجاهل الأوامر</span>
+
+    <span class="kw">switch</span> (command) {
+      <span class="kw">case</span> <span class="str">'F'</span>: <span class="fn">forward</span>();       <span class="kw">break</span>;
+      <span class="kw">case</span> <span class="str">'B'</span>: <span class="fn">back</span>();          <span class="kw">break</span>;
+      <span class="kw">case</span> <span class="str">'L'</span>: <span class="fn">left</span>();          <span class="kw">break</span>;
+      <span class="kw">case</span> <span class="str">'R'</span>: <span class="fn">right</span>();         <span class="kw">break</span>;
+      <span class="kw">case</span> <span class="str">'S'</span>: <span class="fn">Stop</span>();          <span class="kw">break</span>;
+      <span class="kw">case</span> <span class="str">'6'</span>: Speed = <span class="num">204</span>;    <span class="kw">break</span>;   <span class="cm">// سرعة متوسطة</span>
+      <span class="kw">case</span> <span class="str">'q'</span>: Speed = <span class="num">255</span>;    <span class="kw">break</span>;   <span class="cm">// أقصى سرعة</span>
+    }
+  }
+}</pre>
+  </div>
+
+  <h3>🎮 4. دوال التحكم في المحركات</h3>
+  <p><code class="t">analogWrite()</code> ترسل قيمة PWM (0–255) لضبط سرعة المحرك بدقة:</p>
+  <div class="code-block">
+    <div class="code-header">
+      <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+      <span class="code-label">motors.ino</span>
+    </div>
+<pre><span class="type">void</span> <span class="fn">forward</span>() {
+  <span class="fn">analogWrite</span>(in1, Speed); <span class="fn">analogWrite</span>(in2, <span class="num">0</span>);
+  <span class="fn">analogWrite</span>(in3, Speed); <span class="fn">analogWrite</span>(in4, <span class="num">0</span>);
+}
+<span class="type">void</span> <span class="fn">back</span>() {
+  <span class="fn">analogWrite</span>(in1, <span class="num">0</span>); <span class="fn">analogWrite</span>(in2, Speed);
+  <span class="fn">analogWrite</span>(in3, <span class="num">0</span>); <span class="fn">analogWrite</span>(in4, Speed);
+}
+<span class="type">void</span> <span class="fn">left</span>() {
+  <span class="fn">analogWrite</span>(in1, <span class="num">0</span>); <span class="fn">analogWrite</span>(in2, Speed);
+  <span class="fn">analogWrite</span>(in3, Speed); <span class="fn">analogWrite</span>(in4, <span class="num">0</span>);
+}
+<span class="type">void</span> <span class="fn">right</span>() {
+  <span class="fn">analogWrite</span>(in1, Speed); <span class="fn">analogWrite</span>(in2, <span class="num">0</span>);
+  <span class="fn">analogWrite</span>(in3, <span class="num">0</span>); <span class="fn">analogWrite</span>(in4, Speed);
+}
+<span class="type">void</span> <span class="fn">Stop</span>() {
+  <span class="fn">analogWrite</span>(in1,<span class="num">0</span>); <span class="fn">analogWrite</span>(in2,<span class="num">0</span>);
+  <span class="fn">analogWrite</span>(in3,<span class="num">0</span>); <span class="fn">analogWrite</span>(in4,<span class="num">0</span>);
+}</pre>
+  </div>
+</section>
+
+<!-- FUTURE -->
+<section class="section reveal">
+  <h2>التطوير المستقبلي</h2>
+  <p>أفكار لتطوير المشروع في المراحل القادمة:</p>
+  <div class="future-grid">
+    <div class="future-card"><div class="icon">🧭</div><h4>ملاحة ذاتية</h4><p>السيارة تنعطف تلقائياً حول العوائق بدل التوقف البسيط.</p></div>
+    <div class="future-card"><div class="icon">📶</div><h4>Wi-Fi ESP8266</h4><p>استبدال Bluetooth بـ Wi-Fi للتحكم من أي مكان عبر الإنترنت.</p></div>
+    <div class="future-card"><div class="icon">📷</div><h4>رؤية حاسوبية</h4><p>كاميرا لبث فيديو مباشر وتتبع المسار والتعرف على الأشياء.</p></div>
+    <div class="future-card"><div class="icon">🔭</div><h4>360° Sensing</h4><p>مستشعرات جانبية متعددة لرؤية بيئية 360 درجة كاملة.</p></div>
+    <div class="future-card"><div class="icon">🗺️</div><h4>GPS Navigation</h4><p>نظام GPS وخرائط لتحديد الموضع والملاحة المستقلة.</p></div>
+    <div class="future-card"><div class="icon">🤖</div><h4>Machine Learning</h4><p>تعلم آلي للتكيف مع البيئات المختلفة تلقائياً.</p></div>
+  </div>
+</section>
+
+<!-- SIMULATOR -->
+<section class="section reveal" id="sim">
+  <h2>🎮 محاكي السيارة التفاعلي</h2>
+  <p style="margin-bottom:20px">جرّب التحكم في السيارة ولاحظ كيف يعمل المستشعر والمحرك معاً — بفيزياء واقعية وتسارع حقيقي:</p>
+
+  <div class="sim-section">
+    <div class="sim-layout">
+      <div>
+        <canvas id="simCanvas" width="660" height="380"></canvas>
+        <div class="canvas-stats">
+          <div class="cstat"><span class="lbl">المسافة الأمامية</span><span class="val" id="distVal">— سم</span></div>
+          <div class="cstat"><span class="lbl">السرعة الحالية</span><span class="val" id="spdVal">0 %</span></div>
+          <div class="cstat"><span class="lbl">حالة النظام</span><span class="val" id="stateVal">متوقف</span></div>
+        </div>
+      </div>
+      <div class="ctrl-panel">
+        <div class="ctrl-card">
+          <h4>تحكم</h4>
+          <div class="dpad">
+            <div class="dpad-empty"></div>
+            <button class="dpad-btn" id="bU">▲</button>
+            <div class="dpad-empty"></div>
+            <button class="dpad-btn" id="bL">◄</button>
+            <button class="dpad-btn" id="bCtr" style="font-size:11px">■</button>
+            <button class="dpad-btn" id="bR">►</button>
+            <div class="dpad-empty"></div>
+            <button class="dpad-btn" id="bD">▼</button>
+            <div class="dpad-empty"></div>
+          </div>
+          <button class="stop-btn" id="bStop">⏹ توقف كامل</button>
+          <p style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">WASD أو الأسهم للكيبورد</p>
+        </div>
+        <div class="ctrl-card">
+          <h4>إعدادات</h4>
+          <div class="sldr-wrap">
+            <label>السرعة القصوى <span id="spLbl">60%</span></label>
+            <input type="range" id="spSlider" min="10" max="100" value="60" step="1">
+          </div>
+          <div class="sldr-wrap">
+            <label>حساسية التوقف <span id="sensLbl">30 سم</span></label>
+            <input type="range" id="sensSlider" min="15" max="80" value="30" step="1">
+          </div>
+        </div>
+        <div class="ctrl-card">
+          <h4>عوائق</h4>
+          <p style="font-size:11px;color:var(--muted);margin-bottom:6px">انقر على الملعب لإضافة عائق مباشرة</p>
+          <div class="obs-row">
+            <button class="obs-btn" id="addObs">+ عشوائي</button>
+            <button class="obs-btn" id="clearObs">مسح الكل</button>
+          </div>
+          <button class="reset-btn" id="resetBtn">↺ إعادة تعيين الكل</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sim-info-grid">
+      <div class="sim-info-card">
+        <h4>كيفية الاستخدام</h4>
+        <ul>
+          <li><strong>الأزرار / WASD:</strong> تحكم في الاتجاه بضغط مستمر</li>
+          <li><strong>السرعة:</strong> ضبط السرعة القصوى مع تسارع سلس</li>
+          <li><strong>التوقف التلقائي:</strong> عند اقتراب العائق أقل من الحد</li>
+          <li><strong>الإضافة:</strong> اضغط على الملعب لإضافة عائق</li>
+          <li><strong>الصدى:</strong> الخط المنقط يُظهر قياس المستشعر</li>
+        </ul>
+      </div>
+      <div class="sim-info-card">
+        <h4>ميزات المحاكاة</h4>
+        <ul>
+          <li><strong>تسارع وكبح طبيعي:</strong> فيزياء واقعية حقيقية</li>
+          <li><strong>مستشعر متأرجح:</strong> محاكاة مسح الـ Servo</li>
+          <li><strong>3 مستويات تحذير:</strong> أخضر / برتقالي / أحمر</li>
+          <li><strong>أثر المسار:</strong> يُظهر مسار السيارة السابق</li>
+          <li><strong>ارتداد عن الحدود:</strong> بفيزياء ارتداد واقعية</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer reveal">
+  <p>🎓 تحت إشراف: <span class="t">د. محمد صلاح فؤاد</span></p>
+  <p>✨ Smart Car Project · Arduino Uno · <span class="t">2024/2025</span></p>
+</footer>
+
+</div><!-- /wrap -->
+
+<script>
+// ── Scroll reveal ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── Wiring table highlight ──
+document.querySelectorAll('.wire-table tbody tr').forEach(row => {
+  row.addEventListener('mouseenter', () => row.classList.add('hl'));
+  row.addEventListener('mouseleave', () => row.classList.remove('hl'));
+});
+
+// ──────────────────────────────────────────
+// SIMULATOR
+// ──────────────────────────────────────────
+const canvas = document.getElementById('simCanvas');
+const ctx = canvas.getContext('2d');
+const CW = canvas.width, CH = canvas.height;
+
+const S = {
+  x: CW/2, y: CH/2,
+  angle: -Math.PI/2,
+  speed: 0,
+  targetSpeed: 0,
+  maxSpeed: 3.5,
+  fwd: 0,
+  turn: 0,
+  sAngle: 0,    // sensor sweep angle relative to car
+  sDir: 1,
+  sDist: Infinity,
+  stopDist: 30,
+  warnDist: 65,
+  obstacles: [],
+  trail: [],
+  wheelRot: 0,
+  keys: new Set(),
+  lastTime: 0
+};
+
+// ── Raycast ──
+function raycast(ox, oy, angle) {
+  const dx = Math.cos(angle), dy = Math.sin(angle);
+  let minT = 300;
+  for (const o of S.obstacles) {
+    const cx = o.x - ox, cy = o.y - oy;
+    const b = cx*dx + cy*dy;
+    const disc = b*b - (cx*cx + cy*cy - o.r*o.r);
+    if (disc < 0) continue;
+    const t = b - Math.sqrt(disc);
+    if (t > 0 && t < minT) minT = t;
+  }
+  // Walls
+  const walls = [
+    dx !== 0 ? (18 - ox)/dx : -1,
+    dx !== 0 ? (CW - 18 - ox)/dx : -1,
+    dy !== 0 ? (18 - oy)/dy : -1,
+    dy !== 0 ? (CH - 18 - oy)/dy : -1
+  ];
+  for (const t of walls) if (t > 0 && t < minT) minT = t;
+  return minT;
+}
+
+function addObs(x, y) {
+  if (Math.hypot(x - S.x, y - S.y) < 55) return;
+  S.obstacles.push({ x, y, r: 16 + Math.random()*14 });
+}
+
+function randObs() {
+  let x, y, tries = 0;
+  do { x = 60 + Math.random()*(CW-120); y = 60 + Math.random()*(CH-120); tries++; }
+  while (Math.hypot(x - S.x, y - S.y) < 110 && tries < 40);
+  S.obstacles.push({ x, y, r: 16 + Math.random()*14 });
+}
+
+// ── Update ──
+function update(dt) {
+  const dtS = Math.min(dt/1000, 0.05);
+
+  // Sensor sweep
+  S.sAngle += S.sDir * 75 * dtS;
+  if (S.sAngle > 75) S.sDir = -1;
+  if (S.sAngle < -75) S.sDir = 1;
+
+  // Measure distance from nose
+  const noseX = S.x + Math.cos(S.angle) * 20;
+  const noseY = S.y + Math.sin(S.angle) * 20;
+  const worldAngle = S.angle + S.sAngle * Math.PI/180;
+  S.sDist = raycast(noseX, noseY, worldAngle);
+
+  // Obstacle logic
+  const danger = S.fwd > 0 && S.sDist < S.stopDist;
+  const warning = S.fwd > 0 && S.sDist < S.warnDist;
+
+  let targetSpd = S.fwd * S.maxSpeed;
+  if (danger) targetSpd = 0;
+  else if (warning) {
+    const factor = (S.sDist - S.stopDist) / (S.warnDist - S.stopDist);
+    targetSpd = S.fwd * S.maxSpeed * Math.max(0.1, factor);
+  }
+
+  // Smooth speed
+  const accel = 9, brake = 14;
+  if (targetSpd > S.speed) S.speed = Math.min(S.speed + accel*dtS, targetSpd);
+  else if (targetSpd < S.speed) S.speed = Math.max(S.speed - brake*dtS, targetSpd);
+  if (Math.abs(S.speed) < 0.02 && targetSpd === 0) S.speed = 0;
+
+  // Turn (with speed influence)
+  const turnRate = 1.9 * dtS * (Math.min(1, Math.abs(S.speed)/S.maxSpeed + 0.35));
+  S.angle += S.turn * turnRate;
+  S.wheelRot += S.speed * 0.45;
+
+  // Move
+  const prevX = S.x, prevY = S.y;
+  S.x += Math.cos(S.angle) * S.speed;
+  S.y += Math.sin(S.angle) * S.speed;
+
+  // Bounce off walls
+  const M = 17;
+  if (S.x < M) { S.x = M; S.angle = Math.PI - S.angle; S.speed *= -0.25; }
+  if (S.x > CW-M) { S.x = CW-M; S.angle = Math.PI - S.angle; S.speed *= -0.25; }
+  if (S.y < M) { S.y = M; S.angle = -S.angle; S.speed *= -0.25; }
+  if (S.y > CH-M) { S.y = CH-M; S.angle = -S.angle; S.speed *= -0.25; }
+
+  // Trail
+  if (Math.hypot(S.x-prevX, S.y-prevY) > 0.4) {
+    S.trail.push({ x: S.x, y: S.y });
+    if (S.trail.length > 80) S.trail.shift();
+  }
+}
+
+// ── Draw ──
+function draw() {
+  ctx.clearRect(0, 0, CW, CH);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(90,155,165,0.07)';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i < CW; i+=40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,CH); ctx.stroke(); }
+  for (let i = 0; i < CH; i+=40) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(CW,i); ctx.stroke(); }
+
+  // Trail
+  for (let i = 0; i < S.trail.length; i++) {
+    const t = S.trail[i];
+    const a = (i/S.trail.length) * 0.2;
+    ctx.beginPath(); ctx.arc(t.x, t.y, 1.5, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(26,158,117,${a})`; ctx.fill();
+  }
+
+  // Obstacles
+  for (const o of S.obstacles) {
+    ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(74,27,12,0.8)'; ctx.fill();
+    ctx.strokeStyle = '#d85a30'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#d85a30';
+    ctx.font = `${Math.max(10, o.r*0.65)}px sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('✕', o.x, o.y);
+  }
+
+  // Sensor ray
+  const noseX = S.x + Math.cos(S.angle) * 20;
+  const noseY = S.y + Math.sin(S.angle) * 20;
+  const worldAngle = S.angle + S.sAngle * Math.PI/180;
+  const rayLen = Math.min(S.sDist, 300);
+  const ex = noseX + Math.cos(worldAngle) * rayLen;
+  const ey = noseY + Math.sin(worldAngle) * rayLen;
+
+  let rayColor = S.sDist < S.stopDist ? '#d87575' : S.sDist < S.warnDist ? '#c9924f' : '#5A9BA5';
+
+  // FOV cone
+  const fov = 22 * Math.PI/180;
+  ctx.beginPath();
+  ctx.moveTo(noseX, noseY);
+  ctx.arc(noseX, noseY, 36, worldAngle-fov, worldAngle+fov);
+  ctx.closePath();
+  ctx.fillStyle = rayColor + '18'; ctx.fill();
+
+  // Ray line
+  ctx.beginPath(); ctx.moveTo(noseX, noseY); ctx.lineTo(ex, ey);
+  ctx.strokeStyle = rayColor + 'bb'; ctx.lineWidth = 2;
+  ctx.setLineDash([5,5]); ctx.stroke(); ctx.setLineDash([]);
+
+  // Ray endpoint
+  ctx.beginPath(); ctx.arc(ex, ey, S.sDist < 300 ? 5 : 2.5, 0, Math.PI*2);
+  ctx.fillStyle = rayColor; ctx.fill();
+
+  // Sensor dot on nose
+  ctx.beginPath(); ctx.arc(noseX, noseY, 3, 0, Math.PI*2);
+  ctx.fillStyle = '#5dcaa5'; ctx.fill();
+
+  // Car body
+  const danger = S.sDist < S.stopDist && S.fwd > 0;
+  ctx.save();
+  ctx.translate(S.x, S.y);
+  ctx.rotate(S.angle);
+
+  // Body
+  ctx.fillStyle = danger ? '#3d1508' : '#0c3560';
+  ctx.beginPath(); ctx.roundRect(-14, -10, 28, 20, 4); ctx.fill();
+  ctx.strokeStyle = danger ? '#d85a30' : '#378add'; ctx.lineWidth = 1.5; ctx.stroke();
+
+  // Windshield
+  ctx.fillStyle = danger ? '#662010' : '#1a5c9e';
+  ctx.beginPath(); ctx.roundRect(-11, -10, 22, 10, 3); ctx.fill();
+
+  // Headlights
+  ctx.fillStyle = danger ? '#ef9f27' : '#b5d4f4';
+  ctx.fillRect(10, -8, 4, 4);
+  ctx.fillRect(10, 4, 4, 4);
+
+  // Taillights
+  ctx.fillStyle = '#d87575';
+  ctx.fillRect(-14, -7, 3, 3);
+  ctx.fillRect(-14, 4, 3, 3);
+
+  // Wheels
+  const wPositions = [[-12,-12],[6,-12],[-12,8],[6,8]];
+  for (const [wx,wy] of wPositions) {
+    ctx.save(); ctx.translate(wx+3, wy+3); ctx.rotate(S.wheelRot);
+    ctx.fillStyle = '#1a2430';
+    ctx.beginPath(); ctx.roundRect(-3,-4,6,8,1); ctx.fill();
+    ctx.strokeStyle = '#444'; ctx.lineWidth = 0.5; ctx.stroke();
+    ctx.strokeStyle = '#888780'; ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(0,-3); ctx.lineTo(0,3); ctx.stroke();
+    ctx.restore();
+  }
+
+  // Speed arc indicator
+  const spdPct = Math.abs(S.speed) / S.maxSpeed;
+  if (spdPct > 0.05) {
+    ctx.strokeStyle = danger ? '#d85a30' : '#5A9BA5';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(0, 0, 17, -Math.PI/2, -Math.PI/2 + spdPct * Math.PI*2);
+    ctx.stroke();
+  }
+
+  // Emergency LED
+  if (danger) {
+    ctx.fillStyle = '#e24b4a';
+    ctx.beginPath(); ctx.arc(0, -13, 3.5, 0, Math.PI*2); ctx.fill();
+  }
+
+  ctx.restore();
+
+  // UI update
+  const distEl = document.getElementById('distVal');
+  if (S.sDist >= 300) {
+    distEl.textContent = '> 300 سم';
+    distEl.className = 'val ok';
+  } else {
+    const d = Math.round(S.sDist);
+    distEl.textContent = d + ' سم';
+    distEl.className = 'val ' + (d < S.stopDist ? 'danger' : d < S.warnDist ? 'warn' : 'ok');
+  }
+  const spPct = Math.round(Math.abs(S.speed) / S.maxSpeed * 100);
+  document.getElementById('spdVal').textContent = spPct + '%';
+  const stEl = document.getElementById('stateVal');
+  if (S.sDist < S.stopDist && S.fwd > 0) { stEl.textContent = '🚨 إيقاف طارئ'; stEl.className = 'val danger'; }
+  else if (S.sDist < S.warnDist && S.fwd > 0) { stEl.textContent = '⚠️ تحذير'; stEl.className = 'val warn'; }
+  else if (Math.abs(S.speed) > 0.08) { stEl.textContent = '🚗 يتحرك'; stEl.className = 'val ok'; }
+  else { stEl.textContent = '⏸ متوقف'; stEl.className = 'val'; }
+}
+
+function frame(ts) {
+  const dt = ts - S.lastTime;
+  S.lastTime = ts;
+  if (dt < 80) update(dt);
+  draw();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(ts => { S.lastTime = ts; requestAnimationFrame(frame); });
+
+// ── Controls ──
+canvas.addEventListener('click', e => {
+  const r = canvas.getBoundingClientRect();
+  addObs((e.clientX-r.left)*(CW/r.width), (e.clientY-r.top)*(CH/r.height));
+});
+
+function applyKeys() {
+  S.fwd = S.keys.has('u') ? 1 : S.keys.has('d') ? -1 : 0;
+  S.turn = S.keys.has('l') ? -1 : S.keys.has('r') ? 1 : 0;
+  updateBtns();
+}
+function updateBtns() {
+  document.getElementById('bU').classList.toggle('pressed', S.fwd > 0);
+  document.getElementById('bD').classList.toggle('pressed', S.fwd < 0);
+  document.getElementById('bL').classList.toggle('pressed', S.turn < 0);
+  document.getElementById('bR').classList.toggle('pressed', S.turn > 0);
+}
+
+const keyMap = {ArrowUp:'u',w:'u',ArrowDown:'d',s:'d',ArrowLeft:'l',a:'l',ArrowRight:'r',d:'r'};
+document.addEventListener('keydown', e => {
+  const k = keyMap[e.key];
+  if (!k) return; e.preventDefault();
+  S.keys.add(k); applyKeys();
+});
+document.addEventListener('keyup', e => {
+  const k = keyMap[e.key];
+  if (!k) return;
+  S.keys.delete(k); applyKeys();
+});
+
+// D-pad buttons
+const btnMap = { bU:[1,0], bD:[-1,0], bL:[0,-1], bR:[0,1], bCtr:[0,0] };
+Object.entries(btnMap).forEach(([id,[fwd,turn]]) => {
+  const btn = document.getElementById(id);
+  const down = e => { e.preventDefault(); S.fwd=fwd; S.turn=turn; updateBtns(); };
+  const up = () => { S.fwd=0; S.turn=0; updateBtns(); };
+  btn.addEventListener('mousedown', down);
+  btn.addEventListener('touchstart', down, {passive:false});
+  if (id !== 'bCtr') {
+    btn.addEventListener('mouseup', up);
+    btn.addEventListener('mouseleave', up);
+    btn.addEventListener('touchend', up, {passive:false});
+  }
+});
+document.getElementById('bStop').addEventListener('click', () => { S.fwd=0; S.turn=0; S.speed=0; S.targetSpeed=0; updateBtns(); });
+
+document.getElementById('spSlider').addEventListener('input', function() {
+  S.maxSpeed = this.value/100*5;
+  document.getElementById('spLbl').textContent = this.value + '%';
+});
+document.getElementById('sensSlider').addEventListener('input', function() {
+  S.stopDist = parseInt(this.value);
+  S.warnDist = parseInt(this.value)*2.2;
+  document.getElementById('sensLbl').textContent = this.value + ' سم';
+});
+document.getElementById('addObs').addEventListener('click', randObs);
+document.getElementById('clearObs').addEventListener('click', () => S.obstacles = []);
+document.getElementById('resetBtn').addEventListener('click', () => {
+  S.x=CW/2; S.y=CH/2; S.angle=-Math.PI/2;
+  S.speed=0; S.fwd=0; S.turn=0;
+  S.obstacles=[]; S.trail=[]; S.keys.clear(); updateBtns();
+});
+</script>
+</body>
+</html>
